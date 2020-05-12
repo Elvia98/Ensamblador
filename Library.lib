@@ -1,0 +1,51 @@
+
+write MACRO buffer
+  MOV AH,09H
+  LEA DX,buffer
+  INT 21H
+ENDM
+
+position MACRO column
+    MOV AH,02H
+    MOV DX,column
+    MOV BH,00H
+    INT 10H
+ENDM
+
+posicionar MACRO row, column 
+    MOV AH,02H
+    MOV DH, row ;fila
+    MOV DL, column ;Columna
+    INT 10H
+ENDM
+
+impCaracter MACRO caden,color
+    MOV AH,09h
+    MOV AL,caden
+    MOV CX,1
+    MOV BH,0 ;color del fondo 
+    MOV BL,color ; color de la letra
+   
+    INT 10h
+
+ENDM
+
+;CODIGO SEGMENT 'CODE'
+.CODE
+clear PROC NEAR
+     MOV AH,06H
+     MOV BH,3FH        ;2FH VERDE, 3FH AZUL, 71H GRIS
+     MOV CX,0000H      ; Limpia desde la esquina izquierda (0,0)
+     MOV DX,184FH      ; limpia desde la esquina inferior derecha con coordenadas (24,79) en decimal o (18,4F) en hexadecimal
+     INT 10H
+     RET
+clear ENDP
+
+read PROC NEAR
+   MOV AH,01H
+    INT 21H
+    RET
+    read ENDP
+
+;CODIGO ENDS
+.STACK
