@@ -1,3 +1,39 @@
+convertC MACRO corX, corY ; los valores se guardan en cordX  y cordY
+         MOV AX, CX        ;Convierte coordenada en x, cx obtiene el valor de la coordenada despues 
+         MOV BL, 8          ;de utilizar la interrupcion 03h o 05h
+        DIV BL
+        MOV corX,AL
+            MOV AX, DX    ;Convierte coordenada en y
+            MOV BL, 8
+            DIV BL
+            MOV corY,AL
+    ENDM
+
+pintarRenglon macro color, y
+    mov ah, 06
+    mov al, 00
+    ;mov bh, 00000010b
+    mov bh, color
+    mov ch, y
+    mov cl, 0
+    mov dl, 79
+    mov dh, y
+    int 10h
+endm
+saveString MACRO cadena ; Macro para guardar una cadena
+          mov si,0h
+          CiGuardar:
+            MOV AH ,01h
+            INT 21H
+            MOV cadena[SI],AL
+            CMP AL, 0DH
+            JE salirCad
+            INC SI
+            CMP SI,13
+            JE salirCad
+            JMP CiGuardar
+        salirCad:
+  ENDM
 
 write MACRO buffer
   MOV AH,09H
@@ -13,6 +49,7 @@ position MACRO column
 ENDM
 
 posicionar MACRO row, column 
+    mov bx,0 ; puse de mas
     MOV AH,02H
     MOV DH, row ;fila
     MOV DL, column ;Columna
@@ -34,7 +71,8 @@ ENDM
 .CODE
 clear PROC NEAR
      MOV AH,06H
-     MOV BH,3FH        ;2FH VERDE, 3FH AZUL, 71H GRIS
+     mov al ,00 ; puse de mas
+     MOV BH,3fh       ;2FH VERDE, 3FH AZUL, 71H GRIS
      MOV CX,0000H      ; Limpia desde la esquina izquierda (0,0)
      MOV DX,184FH      ; limpia desde la esquina inferior derecha con coordenadas (24,79) en decimal o (18,4F) en hexadecimal
      INT 10H
@@ -46,6 +84,21 @@ read PROC NEAR
     INT 21H
     RET
     read ENDP
+showMouse PROC NEAR
+        MOV AX, 00
+        INT 33H
+        
+        MOV AX, 01H
+        INT 33H
+        ret
+        showMouse ENDP
+        
+    mouseIz proc near
+        mov ax, 5
+        mov bx, 0
+        int 33h
+    ret
+    mouseIz endp
 
 ;CODIGO ENDS
 .STACK

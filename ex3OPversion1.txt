@@ -1,0 +1,104 @@
+;GERONIMO APARICIO ELVIA
+; LEE E IMPRIME DOS CADENAS EN PANTALLA, CAMBIA el nombre1 en el nombre2 UTILIZANDO MOVSB
+
+.MODEL SMALL
+include Library.lib
+  
+.STACK
+
+.DATA
+    letrero DB ('Ingresa una cadena: '),'$'
+    letrero2 DB ('Ingresa otra cadena: '),'$'
+    letrero3 DB ('Las cadenas son: '),'$'
+    letrero5 DB ('Se imprimen ambas cadenas: '),'$'
+    letPedir DB ('1.- INGRESAR CADENAS'),'$'
+    letSalir DB ('2.- SALIR'),'$'
+    letDiferentes DB ('* DIFERENTES *'),'$'
+    letIguales DB ('* IGUALES *'),'$'
+    nombre DB 15 DUP (' '),'$'
+    longN EQU $-nombre
+    nombre2 DB 15 DUP (' '),'$'
+    longN2 EQU $-nombre
+    val DB (''),'$'
+    val2 DB (''),'$'
+    color DB (''),'$'
+    contador   DW ('?'),'$'
+    
+.CODE
+
+      main PROC FAR
+      
+      MOV AX, @DATA
+      MOV ds,AX
+      MOV ES,AX
+      INICIO:
+      call clear
+      position 1700h
+      write letPedir
+      position 0020h
+        write letrero
+        position 0120h
+
+        saveString nombre;Guarda la cadena en nombre
+        guardar2:
+        position 0320h
+        write letrero2
+        position 0420h
+        mov si,0h
+        
+        CiNombre2:; Guarda la cadena en nombre
+            MOV AH ,01h
+            INT 21H
+            MOV nombre2[SI],AL
+           CMP AL, 0DH
+           JE salir
+           INC SI
+           CMP SI,10
+           JE salir
+           JMP CiNombre2
+        
+        salir:
+        position 0720h
+        write letrero3
+        position 0920h
+        write nombre
+        posicionar 10, 20h
+        write nombre2 
+        MOV val2, 15
+        
+        compararCadenas: ;Compara ambas cadenas
+        mov contador,15
+        MOV CX,longN
+        LEA SI,nombre2 
+        LEA DI,nombre  
+        REP CMPSB  
+  
+        CMP CX,0 
+        JE same; cadenas inguales
+        JMP difer
+    
+        same:
+        posicionar 13, 20h
+        write letIguales
+        JMP salir2
+        difer:
+        sub contador, CX
+        sub val2, CL
+        mov DI,contador
+        mov DL, nombre2[DI]
+        mov val, DL
+        add val2,20h
+        posicionar 10,val2
+        impCaracter val, 13
+        posicionar 12, 20h
+        write letDiferentes
+    
+        salir2:
+        call read
+        call clear
+        .exit  
+        RET
+        
+        main endp
+END main
+        
